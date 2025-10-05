@@ -10,3 +10,4 @@ langgraph
 langgraph-prebuilt
 motor
 beanie
+langgraph-checkpoint-mongodb

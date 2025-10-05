@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from agent import invoke_and_get_last_message
+from agent import invoke_and_get_last_message,get_thread_messages
 from database import init_db
 from langchain_core.messages import HumanMessage, SystemMessage
 from typing import Optional
@@ -46,3 +46,6 @@ async def get_tasks(show_completed: Optional[bool] = False):
     except Exception:
         return tasks
 
+@app.get("/threads")
+async def get_threads_db():
+    return await get_thread_messages()

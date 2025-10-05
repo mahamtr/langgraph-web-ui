@@ -63,6 +63,7 @@ export default {
     }
   },
   mounted() {
+    this.fetchChatHistory()
     this.fetchTasks()
   },
   methods: {
@@ -73,6 +74,29 @@ export default {
         margin: '.5rem 0',
         background: role === 'user' ? '#e6f7ff' : '#f0f0f0',
         textAlign: role === 'user' ? 'right' : 'left'
+      }
+    },
+    async fetchChatHistory() {
+      this.loading = true
+      this.error = null
+      try {
+        const res = await axios.get('http://localhost:8000/threads')
+        if (res.data && Array.isArray(res.data)) {
+          this.log = res.data.map(m => {
+            if(m.type == 'human' ) {
+              return ({role:'user',content: m.content});    
+            }
+            else if(m.type == 'ai' && m.tool_calls.length === 0) {
+              return ({role:'system',content: m.content});    
+            }else{
+              return null;    
+            }
+          }).filter(m => m !== null);
+        }
+      } catch (err) {
+        this.error = err.message || 'Failed to fetch chat history'
+      } finally {
+        this.loading = false
       }
     },
     async fetchTasks() {
