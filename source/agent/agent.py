@@ -30,3 +30,18 @@ builder.add_conditional_edges(
 builder.add_edge("tools", "assistant")
 react_graph = builder.compile()
 
+# Method to invoke the react_graph and return the last message in the messages property from the response
+import asyncio
+from typing import List, Dict, Any
+from langchain_core.messages import BaseMessage
+
+async def invoke_and_get_last_message(messages: List[BaseMessage]) -> Any:
+    """
+    Invokes the react_graph with the given messages and returns the last message in the response's messages property.
+    """
+    response = await react_graph.ainvoke({"messages": messages})
+    # Expecting response to be a dict with a 'messages' property (list)
+    if isinstance(response, dict) and "messages" in response and response["messages"]:
+        return response["messages"][-1].content
+    return None
+
