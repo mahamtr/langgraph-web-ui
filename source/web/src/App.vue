@@ -1,5 +1,8 @@
 <template>
-  <div style="font-family: system-ui, -apple-system, Arial; padding:1rem; max-width:1200px; margin:0 auto">
+  <div style="font-family: system-ui, -apple-system, Arial; padding:1rem; max-width:1200px; margin:0 auto; position:relative">
+    <div v-if="overlay" style="position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(255,255,255,0.7); z-index:1000; display:flex; align-items:center; justify-content:center;">
+      <div style="border:6px solid #eee; border-top:6px solid #1890ff; border-radius:50%; width:48px; height:48px; animation:spin 1s linear infinite"></div>
+    </div>
     <h1>LangGraph TODOs & Chat</h1>
     <div style="display:flex; gap:1rem; margin-top:1rem">
       <!-- Left column: tasks -->
@@ -55,7 +58,8 @@ export default {
       loading: false,
       error: null,
       text: '',
-      log: []
+      log: [],
+      overlay: false
     }
   },
   mounted() {
@@ -85,16 +89,30 @@ export default {
     },
     async send() {
       if (!this.text.trim()) return
+      this.overlay = true
       this.log.push({ role: 'user', content: this.text })
       const body = { text: this.text }
       this.text = ''
       try {
         const res = await axios.post('http://localhost:8000/chat', body)
         this.log.push({ role: 'agent', content: res.data.response || JSON.stringify(res.data) })
+        await this.fetchTasks()
       } catch (err) {
         this.log.push({ role: 'agent', content: 'Error contacting agent: ' + err.message })
+      } finally {
+        this.overlay = false
       }
     }
   }
 }
 </script>
+
+<style>
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+</style>
+    }
+  }
+}
